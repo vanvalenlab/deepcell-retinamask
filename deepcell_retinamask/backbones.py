@@ -33,12 +33,12 @@ import copy
 
 import keras_applications as applications
 import tensorflow as tf
-from tensorflow.python.keras import backend as K
-from tensorflow.python.keras.backend import is_keras_tensor
-from tensorflow.python.keras.models import Model
-from tensorflow.python.keras.layers import Input, TimeDistributed
-from tensorflow.python.keras.utils.data_utils import get_file
-from tensorflow.python.keras.utils.layer_utils import get_source_inputs
+from tensorflow.keras import backend as K
+from tensorflow.keras.backend import is_keras_tensor
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, TimeDistributed
+from tensorflow.keras.utils.data_utils import get_file
+from tensorflow.keras.utils.layer_utils import get_source_inputs
 
 
 def get_backbone(backbone, input_tensor=None, input_shape=None,
@@ -52,11 +52,12 @@ def get_backbone(backbone, input_tensor=None, input_shape=None,
             Should have channel dimension of size 3
         use_imagenet (bool): Load pre-trained weights for the backbone
         return_dict (bool): Whether to return a dictionary of backbone layers,
-            e.g. {'C1': C1, 'C2': C2, 'C3': C3, 'C4': C4, 'C5': C5}.
+            e.g. ``{'C1': C1, 'C2': C2, 'C3': C3, 'C4': C4, 'C5': C5}``.
             If false, the whole model is returned instead
         kwargs (dict): Keyword dictionary for backbone constructions.
-            Relevant keys include 'include_top', 'weights' (should be set to None),
-            'input_shape', and 'pooling'
+            Relevant keys include ``'include_top'``,
+            ``'weights'`` (should be ``None``),
+            ``'input_shape'``, and ``'pooling'``.
 
     Returns:
         tensorflow.keras.Model: An instantiated backbone
@@ -67,21 +68,11 @@ def get_backbone(backbone, input_tensor=None, input_shape=None,
     """
     _backbone = str(backbone).lower()
 
-    # set up general Utils class to deal with different tf versions
-    class Utils(object):  # pylint: disable=useless-object-inheritance
-        pass
-
-    utils = Utils()
-    utils.get_file = get_file
-    utils.get_source_inputs = get_source_inputs
-
-    K.is_keras_tensor = is_keras_tensor
-
-    kwargs['backend'] = K
-    kwargs['layers'] = tf.keras.layers
-    kwargs['models'] = tf.keras.models
-    kwargs['utils'] = utils
-
+    featurenet_backbones = {
+        'featurenet': featurenet_backbone,
+        'featurenet3d': featurenet_3D_backbone,
+        'featurenet_3d': featurenet_3D_backbone
+    }
     vgg_backbones = {
         'vgg16': applications.vgg16.VGG16,
         'vgg19': applications.vgg19.VGG19,
@@ -106,23 +97,23 @@ def get_backbone(backbone, input_tensor=None, input_shape=None,
         'resnet101v2': applications.resnet_v2.ResNet101V2,
         'resnet152v2': applications.resnet_v2.ResNet152V2,
     }
-    resnext_backbones = {
-        'resnext50': applications.resnext.ResNeXt50,
-        'resnext101': applications.resnext.ResNeXt101,
-    }
+    # resnext_backbones = {
+    #     'resnext50': applications.resnext.ResNeXt50,
+    #     'resnext101': applications.resnext.ResNeXt101,
+    # }
     nasnet_backbones = {
         'nasnet_large': applications.nasnet.NASNetLarge,
         'nasnet_mobile': applications.nasnet.NASNetMobile,
     }
     efficientnet_backbones = {
-        # 'efficientnetb0': applications.efficientnet.EfficientNetB0,
-        # 'efficientnetb1': applications.efficientnet.EfficientNetB1,
-        # 'efficientnetb2': applications.efficientnet.EfficientNetB2,
-        # 'efficientnetb3': applications.efficientnet.EfficientNetB3,
-        # 'efficientnetb4': applications.efficientnet.EfficientNetB4,
-        # 'efficientnetb5': applications.efficientnet.EfficientNetB5,
-        # 'efficientnetb6': applications.efficientnet.EfficientNetB6,
-        # 'efficientnetb7': applications.efficientnet.EfficientNetB7,
+        'efficientnetb0': applications.efficientnet.EfficientNetB0,
+        'efficientnetb1': applications.efficientnet.EfficientNetB1,
+        'efficientnetb2': applications.efficientnet.EfficientNetB2,
+        'efficientnetb3': applications.efficientnet.EfficientNetB3,
+        'efficientnetb4': applications.efficientnet.EfficientNetB4,
+        'efficientnetb5': applications.efficientnet.EfficientNetB5,
+        'efficientnetb6': applications.efficientnet.EfficientNetB6,
+        'efficientnetb7': applications.efficientnet.EfficientNetB7,
     }
 
     # TODO: Check and make sure **kwargs is in the right format.
@@ -149,7 +140,18 @@ def get_backbone(backbone, input_tensor=None, input_shape=None,
     else:
         kwargs['weights'] = None
 
-    if _backbone in vgg_backbones:
+    if _backbone in featurenet_backbones:
+        if use_imagenet:
+            raise ValueError('A featurenet backbone that is pre-trained on '
+                             'imagenet does not exist')
+
+        model_cls = featurenet_backbones[_backbone]
+        model, output_dict = model_cls(input_tensor=img_input, **kwargs)
+
+        layer_outputs = [output_dict['C1'], output_dict['C2'], output_dict['C3'],
+                         output_dict['C4'], output_dict['C5']]
+
+    elif _backbone in vgg_backbones:
         model_cls = vgg_backbones[_backbone]
         model = model_cls(input_tensor=img_input, **kwargs)
 
@@ -226,24 +228,24 @@ def get_backbone(backbone, input_tensor=None, input_shape=None,
 
         layer_outputs = [model.get_layer(name=ln).output for ln in layer_names]
 
-    elif _backbone in resnext_backbones:
-        model_cls = resnext_backbones[_backbone]
-        model = model_cls(input_tensor=img_input, **kwargs)
-
-        # Set the weights of the model if requested
-        if use_imagenet:
-            model_with_weights = model_cls(**kwargs_with_weights)
-            model_with_weights.save_weights('model_weights.h5')
-            model.load_weights('model_weights.h5', by_name=True)
-
-        if _backbone == 'resnext50':
-            layer_names = ['conv1_relu', 'conv2_block3_out', 'conv3_block4_out',
-                           'conv4_block6_out', 'conv5_block3_out']
-        elif _backbone == 'resnext101':
-            layer_names = ['conv1_relu', 'conv2_block3_out', 'conv3_block4_out',
-                           'conv4_block23_out', 'conv5_block3_out']
-
-        layer_outputs = [model.get_layer(name=ln).output for ln in layer_names]
+    # elif _backbone in resnext_backbones:
+    #     model_cls = resnext_backbones[_backbone]
+    #     model = model_cls(input_tensor=img_input, **kwargs)
+    #
+    #     # Set the weights of the model if requested
+    #     if use_imagenet:
+    #         model_with_weights = model_cls(**kwargs_with_weights)
+    #         model_with_weights.save_weights('model_weights.h5')
+    #         model.load_weights('model_weights.h5', by_name=True)
+    #
+    #     if _backbone == 'resnext50':
+    #         layer_names = ['conv1_relu', 'conv2_block3_out', 'conv3_block4_out',
+    #                        'conv4_block6_out', 'conv5_block3_out']
+    #     elif _backbone == 'resnext101':
+    #         layer_names = ['conv1_relu', 'conv2_block3_out', 'conv3_block4_out',
+    #                        'conv4_block23_out', 'conv5_block3_out']
+    #
+    #     layer_outputs = [model.get_layer(name=ln).output for ln in layer_names]
 
     elif _backbone in mobilenet_backbones:
         model_cls = mobilenet_backbones[_backbone]
@@ -300,8 +302,8 @@ def get_backbone(backbone, input_tensor=None, input_shape=None,
 
     else:
         join = lambda x: [v for y in x for v in list(y.keys())]
-        backbones = join([densenet_backbones, resnet_backbones,
-                          resnext_backbones, resnet_v2_backbones,
+        backbones = join([featurenet_backbones, densenet_backbones,
+                          resnet_backbones, resnet_v2_backbones,
                           vgg_backbones, nasnet_backbones,
                           mobilenet_backbones, efficientnet_backbones])
         raise ValueError('Invalid value for `backbone`. Must be one of: %s' %
@@ -311,8 +313,11 @@ def get_backbone(backbone, input_tensor=None, input_shape=None,
 
         time_distributed_outputs = []
         for i, out in enumerate(layer_outputs):
+            td_name = 'td_{}'.format(i)
+            model_name = 'model_{}'.format(i)
             time_distributed_outputs.append(
-                TimeDistributed(Model(model.input, out))(input_tensor))
+                TimeDistributed(Model(model.input, out, name=model_name),
+                                name=td_name)(input_tensor))
 
         if time_distributed_outputs:
             layer_outputs = time_distributed_outputs

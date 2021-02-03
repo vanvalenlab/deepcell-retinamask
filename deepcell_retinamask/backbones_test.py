@@ -23,7 +23,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-"""Tests for backbone_utils"""
+"""Tests for backbones"""
 
 from __future__ import absolute_import
 from __future__ import print_function
@@ -31,13 +31,13 @@ from __future__ import division
 
 from absl.testing import parameterized
 
-from tensorflow.python.keras import backend as K
-from tensorflow.python.keras.layers import Input
-from tensorflow.python.keras.models import Model
-from tensorflow.python.keras import keras_parameterized
+from tensorflow.keras import backend as K
+from tensorflow.keras.layers import Input
+from tensorflow.keras.models import Model
+from tensorflow.keras import keras_parameterized
 from tensorflow.python.platform import test
 
-from deepcell_retinamask.utils import backbone_utils
+from deepcell_retinamask import backbones
 
 
 class TestBackboneUtils(keras_parameterized.TestCase):
@@ -66,7 +66,7 @@ class TestBackboneUtils(keras_parameterized.TestCase):
         with self.cached_session():
             K.set_image_data_format('channels_last')
             inputs = Input(shape=(256, 256, 3))
-            model, output_dict = backbone_utils.get_backbone(
+            model, output_dict = backbones.get_backbone(
                 backbone, inputs, return_dict=True)
             assert isinstance(output_dict, dict)
             assert all(k.startswith('C') for k in output_dict)
@@ -75,7 +75,7 @@ class TestBackboneUtils(keras_parameterized.TestCase):
     def test_invalid_backbone(self):
         inputs = Input(shape=(4, 2, 3))
         with self.assertRaises(ValueError):
-            backbone_utils.get_backbone('bad', inputs, return_dict=True)
+            backbones.get_backbone('bad', inputs, return_dict=True)
 
 
 if __name__ == '__main__':
