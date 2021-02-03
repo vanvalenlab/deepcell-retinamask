@@ -39,15 +39,17 @@ from tensorflow.keras.layers import Permute, Reshape
 from tensorflow.keras.layers import Activation
 from tensorflow.keras.initializers import RandomNormal
 
-from deepcell.initializers import PriorProbability
 from deepcell.layers import TensorProduct
-from deepcell.layers import FilterDetections
-from deepcell.layers import ImageNormalization2D, Location2D
-from deepcell.layers import Anchors, RegressBoxes, ClipBoxes
-from deepcell.utils.retinanet_anchor_utils import AnchorParameters
+from deepcell.layers import ImageNormalization2D
+from deepcell.layers import Location2D
 from deepcell.model_zoo.fpn import __create_semantic_head
 from deepcell.model_zoo.fpn import __create_pyramid_features
 from deepcell.utils.backbone_utils import get_backbone
+
+from deepcell_retinamask.initializers import PriorProbability
+from deepcell_retinamask.layers import FilterDetections
+from deepcell_retinamask.layers import Anchors, RegressBoxes, ClipBoxes
+from deepcell_retinamask.utils.anchor_utils import AnchorParameters
 
 
 def default_classification_model(num_classes,

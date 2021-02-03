@@ -34,7 +34,7 @@ from absl.testing import parameterized
 from tensorflow.keras import backend as K
 from tensorflow.python.keras import keras_parameterized
 
-from deepcell.model_zoo import RetinaMask
+from deepcell_retinamask.model_zoo import RetinaMask
 
 
 class RetinaMaskTest(keras_parameterized.TestCase):

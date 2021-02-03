@@ -33,7 +33,7 @@ from skimage.measure import regionprops
 
 from deepcell_toolbox.processing import watershed
 
-from deepcell_toolbox.utils import postprocessing_utils
+from deepcell_retinamask.utils import postprocessing_utils
 
 
 def _sample1(w, h, imw, imh):

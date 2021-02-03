@@ -30,6 +30,7 @@ from __future__ import print_function
 from __future__ import division
 
 from deepcell_retinamask.utils import anchor_utils
+from deepcell_retinamask.utils import plot_utils
 from deepcell_retinamask.utils import postprocessing_utils
 
 from deepcell_retinamask.utils.postprocessing_utils import \

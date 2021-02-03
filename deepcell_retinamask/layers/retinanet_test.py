@@ -30,10 +30,11 @@ from __future__ import division
 
 import numpy as np
 from tensorflow.keras import backend as K
-from tensorflow.keras import keras_parameterized
+from tensorflow.python.keras import keras_parameterized
+from tensorflow.python.keras import testing_utils
+from tensorflow.keras.utils import custom_object_scope
 from tensorflow.python.platform import test
 
-from deepcell_retinamask.utils import testing_utils
 from deepcell_retinamask import layers
 
 
@@ -41,24 +42,22 @@ from deepcell_retinamask import layers
 class TestAnchors(keras_parameterized.TestCase):
 
     def test_anchors_2d(self):
-        testing_utils.layer_test(
-            layers.Anchors,
-            kwargs={'size': 1, 'stride': 1,
-                    'data_format': 'channels_last'},
-            custom_objects={'Anchors': layers.Anchors},
-            input_shape=(3, 5, 6, 4))
-        testing_utils.layer_test(
-            layers.Anchors,
-            kwargs={'size': 1, 'stride': 1,
-                    'data_format': 'channels_last'},
-            custom_objects={'Anchors': layers.Anchors},
-            input_shape=(3, None, None, None))
-        testing_utils.layer_test(
-            layers.Anchors,
-            kwargs={'size': 1, 'stride': 1,
-                    'data_format': 'channels_first'},
-            custom_objects={'Anchors': layers.Anchors},
-            input_shape=(3, 5, 6, 4))
+        with custom_object_scope({'Anchors': layers.Anchors}):
+            testing_utils.layer_test(
+                layers.Anchors,
+                kwargs={'size': 1, 'stride': 1,
+                        'data_format': 'channels_last'},
+                input_shape=(3, 5, 6, 4))
+            testing_utils.layer_test(
+                layers.Anchors,
+                kwargs={'size': 1, 'stride': 1,
+                        'data_format': 'channels_last'},
+                input_shape=(3, None, None, None))
+            testing_utils.layer_test(
+                layers.Anchors,
+                kwargs={'size': 1, 'stride': 1,
+                        'data_format': 'channels_first'},
+                input_shape=(3, 5, 6, 4))
 
     def test_simple(self):
         # create simple Anchors layer

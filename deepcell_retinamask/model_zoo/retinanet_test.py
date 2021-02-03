@@ -35,7 +35,7 @@ from tensorflow.keras import backend as K
 from tensorflow.python.keras import keras_parameterized
 from tensorflow.python.platform import test
 
-from deepcell.model_zoo import RetinaNet
+from deepcell_retinamask.model_zoo import RetinaNet
 
 
 class RetinaNetTest(keras_parameterized.TestCase):

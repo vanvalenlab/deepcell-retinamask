@@ -29,7 +29,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import division
 
-from deepcell_retinamask.model_zoo import fpn
 from deepcell_retinamask.model_zoo import retinanet
 from deepcell_retinamask.model_zoo import retinamask
 

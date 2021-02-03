@@ -39,9 +39,6 @@ from deepcell_retinamask.layers.retinanet import RoiAlign
 from deepcell_retinamask.layers.retinanet import Shape
 from deepcell_retinamask.layers.retinanet import Cast
 from deepcell_retinamask.layers.upsample import Upsample
-from deepcell_retinamask.layers.upsample import UpsampleLike
-from deepcell_retinamask.layers.normalization import ImageNormalization2D
-from deepcell_retinamask.layers.normalization import ImageNormalization3D
 
 del absolute_import
 del division
