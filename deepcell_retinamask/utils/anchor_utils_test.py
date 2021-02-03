@@ -36,7 +36,7 @@ from tensorflow.keras.layers import Conv2D
 from tensorflow.python.framework import tensor_shape
 from tensorflow.python.platform import test
 
-from deepcell_retinamask.utils import retinanet_anchor_utils as utils
+from deepcell_retinamask.utils import anchor_utils
 
 
 class TestRetinaNetAnchorUtils(test.TestCase):
@@ -46,11 +46,12 @@ class TestRetinaNetAnchorUtils(test.TestCase):
         strides = [8, 16, 32]
         ratios = np.array([0.5, 1, 2, 3], K.floatx())
         scales = np.array([1, 1.2, 1.6], K.floatx())
-        anchor_params = utils.AnchorParameters(sizes, strides, ratios, scales)
+        anchor_params = anchor_utils.AnchorParameters(
+            sizes, strides, ratios, scales)
 
         pyramid_levels = [3, 4, 5]
         image_shape = tensor_shape.TensorShape((64, 64))
-        all_anchors = utils.anchors_for_shape(
+        all_anchors = anchor_utils.anchors_for_shape(
             image_shape,
             pyramid_levels=pyramid_levels,
             anchor_params=anchor_params)
@@ -63,11 +64,12 @@ class TestRetinaNetAnchorUtils(test.TestCase):
         strides = [8]
         ratios = np.array([1, 2], K.floatx())
         scales = np.array([1, 2], K.floatx())
-        anchor_params = utils.AnchorParameters(sizes, strides, ratios, scales)
+        anchor_params = anchor_utils.AnchorParameters(
+            sizes, strides, ratios, scales)
 
         pyramid_levels = [3]
         image_shape = (16, 16)
-        all_anchors = utils.anchors_for_shape(
+        all_anchors = anchor_utils.anchors_for_shape(
             image_shape,
             pyramid_levels=pyramid_levels,
             anchor_params=anchor_params)
@@ -176,7 +178,8 @@ class TestRetinaNetAnchorUtils(test.TestCase):
         strides = [8]
         ratios = np.array([1, 2], K.floatx())
         scales = np.array([1, 2], K.floatx())
-        anchor_params = utils.AnchorParameters(sizes, strides, ratios, scales)
+        anchor_params = anchor_utils.AnchorParameters(
+            sizes, strides, ratios, scales)
 
         pyramid_levels = [3]
         image_shape = (16, 16)
@@ -187,15 +190,15 @@ class TestRetinaNetAnchorUtils(test.TestCase):
 
         # test image / annotation size mismatch
         with self.assertRaises(ValueError):
-            utils.anchor_targets_bbox(anchors, [1], [1, 2, 3], 1)
+            anchor_utils.anchor_targets_bbox(anchors, [1], [1, 2, 3], 1)
         # test image / annotation not empty
         with self.assertRaises(ValueError):
-            utils.anchor_targets_bbox(anchors, [], [], 1)
+            anchor_utils.anchor_targets_bbox(anchors, [], [], 1)
         # test annotation structure
         with self.assertRaises(ValueError):
-            utils.anchor_targets_bbox(anchors, [1], [{'labels': 1}], 1)
+            anchor_utils.anchor_targets_bbox(anchors, [1], [{'labels': 1}], 1)
         with self.assertRaises(ValueError):
-            utils.anchor_targets_bbox(anchors, [1], [{'bboxes': 1}], 1)
+            anchor_utils.anchor_targets_bbox(anchors, [1], [{'bboxes': 1}], 1)
 
     def test_bbox_transform(self):
         # TODO: test correct-ness
@@ -203,27 +206,28 @@ class TestRetinaNetAnchorUtils(test.TestCase):
         strides = [8]
         ratios = np.array([1, 2], K.floatx())
         scales = np.array([1, 2], K.floatx())
-        anchor_params = utils.AnchorParameters(sizes, strides, ratios, scales)
+        anchor_params = anchor_utils.AnchorParameters(
+            sizes, strides, ratios, scales)
 
         pyramid_levels = [3]
         image_shape = (16, 16)
-        anchors = utils.anchors_for_shape(
+        anchors = anchor_utils.anchors_for_shape(
             image_shape,
             pyramid_levels=pyramid_levels,
             anchor_params=anchor_params)
 
         # test custom std/mean
-        targets = utils.bbox_transform(
+        targets = anchor_utils.bbox_transform(
             anchors, np.random.random((1, 4)), mean=[0], std=[0.2])
 
         self.assertTupleEqual(targets.shape, (16, 4))
 
         # test bad `mean` value
         with self.assertRaises(ValueError):
-            utils.bbox_transform(anchors, [1], mean='invalid', std=None)
+            anchor_utils.bbox_transform(anchors, [1], mean='invalid', std=None)
         # test image / annotation not empty
         with self.assertRaises(ValueError):
-            utils.bbox_transform(anchors, [1], mean=None, std='invalid')
+            anchor_utils.bbox_transform(anchors, [1], mean=None, std='invalid')
 
     def test_layer_shapes(self):
         image_shape = (16, 16, 1)
@@ -231,7 +235,7 @@ class TestRetinaNetAnchorUtils(test.TestCase):
 
         model.add(Conv2D(3, (3, 3), input_shape=image_shape, name='P1'))
         model.add(Conv2D(3, (3, 3), name='P2'))
-        shapes = utils.layer_shapes(image_shape, model)
+        shapes = anchor_utils.layer_shapes(image_shape, model)
         self.assertIsInstance(shapes, dict)
         self.assertTrue('P1' in shapes)
         self.assertEqual(shapes['P1'], tuple([None] + list(image_shape)))
@@ -239,7 +243,7 @@ class TestRetinaNetAnchorUtils(test.TestCase):
 
         # test TensorShape compatibility
         image_shape = tensor_shape.TensorShape(image_shape)
-        shapes = utils.layer_shapes(image_shape, model)
+        shapes = anchor_utils.layer_shapes(image_shape, model)
         self.assertIsInstance(shapes, dict)
         self.assertTrue('P1' in shapes)
         self.assertEqual(shapes['P1'], tuple([None] + list(image_shape)))
@@ -253,14 +257,17 @@ class TestRetinaNetAnchorUtils(test.TestCase):
         model = Sequential()
 
         model.add(Conv2D(3, (3, 3), input_shape=image_shape, name=name))
-        cb = utils.make_shapes_callback(model)
+        cb = anchor_utils.make_shapes_callback(model)
         shape = cb(image_shape, pyramid_levels)
         # TODO: should the output be a TensorShape?
         self.assertEqual(shape, [tensor_shape.TensorShape((16, 16))])
 
     def test_get_sorted_keys(self):
         d = {'C1': 1, 'C3': 2, 'C2': 3}
-        self.assertListEqual(utils.get_sorted_keys(d), ['C1', 'C2', 'C3'])
+        self.assertListEqual(
+            anchor_utils.get_sorted_keys(d),
+            ['C1', 'C2', 'C3']
+        )
 
 if __name__ == '__main__':
     test.main()
