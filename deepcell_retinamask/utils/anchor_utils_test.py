@@ -183,7 +183,7 @@ class TestRetinaNetAnchorUtils(test.TestCase):
 
         pyramid_levels = [3]
         image_shape = (16, 16)
-        anchors = utils.anchors_for_shape(
+        anchors = anchor_utils.anchors_for_shape(
             image_shape,
             pyramid_levels=pyramid_levels,
             anchor_params=anchor_params)

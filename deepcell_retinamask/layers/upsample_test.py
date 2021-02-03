@@ -30,10 +30,11 @@ from __future__ import division
 
 import numpy as np
 from tensorflow.keras import backend as K
+from tensorflow.keras.utils import custom_object_scope
 from tensorflow.python.keras import keras_parameterized
 from tensorflow.python.platform import test
+from tensorflow.python.keras import testing_utils
 
-from deepcell_retinamask.utils import testing_utils
 from deepcell_retinamask import layers
 
 
