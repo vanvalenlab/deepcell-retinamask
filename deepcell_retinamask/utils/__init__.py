@@ -30,6 +30,10 @@ from __future__ import print_function
 from __future__ import division
 
 from deepcell_retinamask.utils import anchor_utils
+from deepcell_retinamask.utils import postprocessing_utils
+
+from deepcell_retinamask.utils.postprocessing_utils import \
+    retinamask_postprocess, retinamask_semantic_postprocess
 
 del absolute_import
 del division
