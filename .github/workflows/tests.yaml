@@ -41,7 +41,7 @@ jobs:
 
     - name: PyTest
       run: |
-        pytest --cov redis_consumer --pep8
+        pytest --cov deepcell_retinamask --pep8
 
     - name: Coveralls
       if: env.COVERALLS_REPO_TOKEN != null
