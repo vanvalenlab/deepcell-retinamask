@@ -23,21 +23,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-"""The Deepcell-RetinaMask module"""
 
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import division
-
-from deepcell_retinamask._version import __version__
-
-from deepcell_retinamask import image_generators
-from deepcell_retinamask import initializers
-from deepcell_retinamask import layers
-from deepcell_retinamask import losses
-from deepcell_retinamask import model_zoo
-from deepcell_retinamask import utils
-
-del absolute_import
-del division
-del print_function
+__version__ = '0.1.0'
+__title__ = 'DeepCell-RetinaMask'
+__description__ = ('RetinaNet and RetinaMask models for object detection '
+                   'using TensorFlow and DeepCell-tf.')
+__url__ = 'https://github.com/vanvalenlab/deepcell-retinamask'
+__download_url__ = '{}/tarball/{}'.format(__url__, __version__)
+__author__ = 'The Van Valen Lab'
+__author_email__ = 'vanvalen@caltech.edu'
+__license__ = 'LICENSE'
+__copyright__ = 'Copyright 2016-2021 The Van Valen Lab at the ' \
+    'California Institute of Technology (Caltech)'
