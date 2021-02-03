@@ -34,19 +34,20 @@ import re
 from tensorflow.keras import backend as K
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Conv2D, Conv3D, TimeDistributed
-from tensorflow.keras.layers import Input, Concatenate, Dense
+from tensorflow.keras.layers import Input, Concatenate
 from tensorflow.keras.layers import Permute, Reshape
-from tensorflow.keras.layers import Activation, Lambda
+from tensorflow.keras.layers import Activation
 from tensorflow.keras.initializers import RandomNormal
 
-from deepcell_retinamask.initializers import PriorProbability
-from deepcell_retinamask.layers import FilterDetections
-from deepcell_retinamask.layers import Anchors, RegressBoxes, ClipBoxes
-from deepcell_retinamask.layers import ImageNormalization2D
-from deepcell_retinamask.model_zoo.fpn import __create_semantic_head
-from deepcell_retinamask.model_zoo.fpn import __create_pyramid_features
-from deepcell_retinamask.utils.retinanet_anchor_utils import AnchorParameters
-from deepcell_retinamask.utils.backbone_utils import get_backbone
+from deepcell.initializers import PriorProbability
+from deepcell.layers import TensorProduct
+from deepcell.layers import FilterDetections
+from deepcell.layers import ImageNormalization2D, Location2D
+from deepcell.layers import Anchors, RegressBoxes, ClipBoxes
+from deepcell.utils.retinanet_anchor_utils import AnchorParameters
+from deepcell.model_zoo.fpn import __create_semantic_head
+from deepcell.model_zoo.fpn import __create_pyramid_features
+from deepcell.utils.backbone_utils import get_backbone
 
 
 def default_classification_model(num_classes,
@@ -73,8 +74,7 @@ def default_classification_model(num_classes,
         name (str): The name of the submodel.
 
     Returns:
-        tensorflow.keras.Model: A model that predicts classes for
-            each anchor.
+        tensorflow.keras.Model: A model that predicts classes for each anchor.
     """
     time_distributed = frames_per_batch > 1
 
@@ -147,7 +147,7 @@ def default_regression_model(num_values,
 
     Returns:
         tensorflow.keras.Model: A model that predicts regression values
-            for each anchor.
+        for each anchor.
     """
     # All new conv layers except the final one in the
     # RetinaNet (classification) subnets are initialized
@@ -209,7 +209,7 @@ def default_submodels(num_classes, num_anchors, frames_per_batch=1):
 
     Returns:
         list: A list of tuples, where the first element is the name of the
-            submodel and the second element is the submodel itself.
+        submodel and the second element is the submodel itself.
     """
     return [
         ('regression', default_regression_model(
@@ -231,8 +231,7 @@ def __build_model_pyramid(name, model, features):
         tensor: The response from the submodel on the FPN features.
     """
     if len(features) == 1:
-        # TODO: Lambda layer has no compute_output_shape in eager mode
-        identity = Lambda(lambda x: x, name=name)
+        identity = Activation('linear', name=name)
         return identity(model(features[0]))
     else:
         concat = Concatenate(axis=-2, name=name)
@@ -265,10 +264,7 @@ def __build_anchors(anchor_parameters, features, frames_per_batch=1):
 
     Returns:
         tensor: The anchors for the FPN features.
-            The shape is:
-            ```
-            (batch_size, num_anchors, 4)
-            ```
+        The shape is: ``(batch_size, num_anchors, 4)``
     """
 
     if len(features) == 1:
@@ -326,7 +322,7 @@ def retinanet(inputs,
               frames_per_batch=1,
               semantic_only=False,
               name='retinanet'):
-    """Construct a RetinaNet model on top of a backbone.
+    """Construct a ``RetinaNet`` model on top of a backbone.
 
     This model is the minimum model necessary for training
     (with the unfortunate exception of anchors as output).
@@ -335,19 +331,19 @@ def retinanet(inputs,
         inputs (tensor): The inputs to the network.
         backbone_dict (dict): A dictionary with the backbone layers.
         backbone_levels (list): The backbone levels to be used.
-            to create the feature pyramid. Defaults to ['C3', 'C4', 'C5'].
+            to create the feature pyramid.
         pyramid_levels (list): The pyramid levels to attach regression and
-            classification heads to. Defaults to ['P3', 'P4', 'P5', 'P6', 'P7'].
+            classification heads.
         num_classes (int): Number of classes to classify.
         num_anchors (int): Number of base anchors.
         create_pyramid_features (function): Function to create pyramid features.
         create_semantic_head (function): Function for creating a semantic head,
             which can be used for panoptic segmentation tasks.
         panoptic (bool): Flag for adding the semantic head for panoptic
-            segmentation tasks. Defaults to false.
+            segmentation tasks.
         num_semantic_heads (int): The number of semantic segmentation heads.
         num_semantic_classes (list): The number of classes for the semantic
-            segmentation part of panoptic segmentation tasks. Defaults to 3.
+            segmentation part of panoptic segmentation tasks.
         submodels (list): Submodels to run on each feature map
             (default is regression and classification submodels).
         frames_per_batch (int): Size of z axis in generated batches.
@@ -356,16 +352,17 @@ def retinanet(inputs,
 
     Returns:
         tensorflow.keras.Model: A Model which takes an image as input
-            and outputs generated anchors and the result from each submodel on
-            every pyramid level.
+        and outputs generated anchors and the result from each submodel on
+        every pyramid level.
 
-            The order of the outputs is as defined in submodels:
+        The order of the outputs is as defined in submodels:
 
-            ```
+        .. code-block:: python
+
             [
                 regression, classification, other[0], other[1], ...
             ]
-            ```
+
     """
     if num_anchors is None:
         num_anchors = AnchorParameters.default.num_anchors()
@@ -437,7 +434,7 @@ def retinanet_bbox(model=None,
         nms (bool): Whether to use non-maximum suppression
             for the filtering step.
         panoptic (bool): Flag for adding the semantic head for panoptic
-            segmentation tasks. Defaults to false.
+            segmentation tasks.
         num_semantic_heads (int): The number of semantic segmentation heads.
         class_specific_filter (bool): Whether to use class specific filtering
             or filter for the best scoring class only.
@@ -451,15 +448,15 @@ def retinanet_bbox(model=None,
 
     Returns:
         tensorflow.keras.Model: A Model which takes an image as input and
-            outputs the detections on the image.
+        outputs the detections on the image.
 
-            The order is defined as follows:
+        The order is defined as follows:
 
-            ```
+        .. code-block:: python
+
             [
                 boxes, scores, labels, other[0], other[1], ...
             ]
-            ```
 
     Raises:
         ValueError: the given model does not have a regression or
@@ -525,32 +522,34 @@ def RetinaNet(backbone,
               input_shape,
               inputs=None,
               norm_method='whole_image',
+              location=False,
               use_imagenet=False,
               pooling=None,
               required_channels=3,
               frames_per_batch=1,
               **kwargs):
-    """Constructs a retinanet model using a backbone from keras-applications.
+    """Constructs a RetinaNet model using a backbone from
+    ``keras-applications``.
 
     Args:
         backbone (str): Name of backbone to use.
         num_classes (int): Number of classes to classify.
         input_shape (tuple): The shape of the input data.
-        inputs (tensor): Optional input tensor, overrides input_shape.
-        norm_method (str): ImageNormalization mode to use.
+        inputs (tensor): Optional input tensor, overrides ``input_shape``.
+        norm_method (str): Normalization method to use with the
+            :mod:`deepcell.layers.normalization.ImageNormalization2D` layer.
+        location (bool): Whether to include a
+            :mod:`deepcell.layers.location.Location2D` layer.
         use_imagenet (bool): Whether to load imagenet-based pretrained weights.
         pooling (str): Pooling mode for feature extraction
-            when 'include_top' is False.
+            when ``include_top`` is ``False``.
 
             - None means that the output of the model will be
-                the 4D tensor output of the
-                last convolutional layer.
-            - 'avg' means that global average pooling
-                will be applied to the output of the
-                last convolutional layer, and thus
-                the output of the model will be a 2D tensor.
-            - 'max' means that global max pooling will
-                be applied.
+              the 4D tensor output of the last convolutional layer.
+            - 'avg' means that global average pooling will be applied to
+              the output of the last convolutional layer, and thus
+              the output of the model will be a 2D tensor.
+            - 'max' means that global max pooling will be applied.
 
         required_channels (int): The required number of channels of the
             backbone. 3 is the default for all current backbones.
@@ -571,17 +570,27 @@ def RetinaNet(backbone,
             else:
                 input_shape_with_time = tuple(
                     [frames_per_batch] + list(input_shape))
-            inputs = Input(shape=input_shape_with_time)
+            inputs = Input(shape=input_shape_with_time, name='input')
         else:
-            inputs = Input(shape=input_shape)
+            inputs = Input(shape=input_shape, name='input')
+
+    if location:
+        if frames_per_batch > 1:
+            # TODO: TimeDistributed is incompatible with channels_first
+            loc = TimeDistributed(Location2D(in_shape=input_shape))(inputs)
+        else:
+            loc = Location2D(in_shape=input_shape)(inputs)
+        concat = Concatenate(axis=channel_axis)([inputs, loc])
+    else:
+        concat = inputs
 
     # force the channel size for backbone input to be `required_channels`
     if frames_per_batch > 1:
-        norm = TimeDistributed(ImageNormalization2D(norm_method=norm_method))(inputs)
-        fixed_inputs = TimeDistributed(Dense(required_channels))(norm)
+        norm = TimeDistributed(ImageNormalization2D(norm_method=norm_method))(concat)
+        fixed_inputs = TimeDistributed(TensorProduct(required_channels))(norm)
     else:
-        norm = ImageNormalization2D(norm_method=norm_method)(inputs)
-        fixed_inputs = Dense(required_channels)(norm)
+        norm = ImageNormalization2D(norm_method=norm_method)(concat)
+        fixed_inputs = TensorProduct(required_channels)(norm)
 
     # force the input shape
     axis = 0 if K.image_data_format() == 'channels_first' else -1

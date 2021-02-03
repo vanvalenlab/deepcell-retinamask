@@ -100,12 +100,22 @@ class TestRetinaNetDataGenerator(test.TestCase):
             y_shape = tuple(list(images.shape)[:-1] + [1])
             train_dict['X'] = images
             train_dict['y'] = np.random.randint(0, 9, size=y_shape)
-            for x, (r, l) in generator.flow(
+            for x, y in generator.flow(
                     train_dict,
                     num_classes=num_classes,
+                    include_bbox=True,
+                    include_masks=True,
                     save_to_dir=temp_dir,
                     shuffle=True):
-                self.assertEqual(x.shape[1:], images.shape[1:])
+                self.assertIsInstance(x, dict)
+                self.assertEqual('input' in x, True)
+                self.assertEqual('boxes_input' in x, True)
+                self.assertEqual(x['input'].shape[1:], images.shape[1:])
+                self.assertIsInstance(y, dict)
+                self.assertEqual('regression' in y, True)
+                self.assertEqual('classification' in y, True)
+                r = y['regression']
+                l = y['classification']
                 self.assertEqual(r.shape[:-1], l.shape[:-1])
                 self.assertEqual(r.shape[-1], 5)
                 self.assertEqual(l.shape[-1], num_classes + 1)
@@ -156,12 +166,22 @@ class TestRetinaNetDataGenerator(test.TestCase):
             train_dict['X'] = images
             train_dict['y'] = np.random.randint(0, 9, size=y_shape)
 
-            for x, (r, l) in generator.flow(
+            for x, y in generator.flow(
                     train_dict,
                     num_classes=num_classes,
+                    include_bbox=True,
+                    include_masks=True,
                     save_to_dir=temp_dir,
                     shuffle=True):
-                self.assertEqual(x.shape[1:], images.shape[1:])
+                self.assertIsInstance(x, dict)
+                self.assertEqual('input' in x, True)
+                self.assertEqual('boxes_input' in x, True)
+                self.assertEqual(x['input'].shape[1:], images.shape[1:])
+                self.assertIsInstance(y, dict)
+                self.assertEqual('regression' in y, True)
+                self.assertEqual('classification' in y, True)
+                r = y['regression']
+                l = y['classification']
                 self.assertEqual(r.shape[:-1], l.shape[:-1])
                 self.assertEqual(r.shape[-1], 5)
                 self.assertEqual(l.shape[-1], num_classes + 1)
@@ -265,15 +285,26 @@ class TestRetinaMovieDataGenerator(test.TestCase):
             train_dict['X'] = images
             train_dict['y'] = np.random.randint(0, 9, size=y_shape)
 
-            for x, (r, l) in generator.flow(
+            for x, y in generator.flow(
                     train_dict,
                     frames_per_batch=frames_per_batch,
                     num_classes=num_classes,
+                    include_bbox=True,
+                    include_masks=True,
                     save_to_dir=temp_dir,
                     shuffle=True):
                 expected = list(images.shape)
                 expected[1] = frames_per_batch
-                self.assertEqual(x.shape[1:], tuple(expected)[1:])
+                expected = tuple(expected)
+                self.assertIsInstance(x, dict)
+                self.assertEqual('input' in x, True)
+                self.assertEqual('boxes_input' in x, True)
+                self.assertEqual(x['input'].shape[1:], expected[1:])
+                self.assertIsInstance(y, dict)
+                self.assertEqual('regression' in y, True)
+                self.assertEqual('classification' in y, True)
+                r = y['regression']
+                l = y['classification']
                 self.assertEqual(r.shape[:-1], l.shape[:-1])
                 self.assertEqual(r.shape[-1], 5)
                 self.assertEqual(l.shape[-1], num_classes + 1)
@@ -334,15 +365,27 @@ class TestRetinaMovieDataGenerator(test.TestCase):
             train_dict['X'] = images
             train_dict['y'] = np.random.randint(0, 9, size=y_shape)
 
-            for x, (r, l) in generator.flow(
+            for x, y in generator.flow(
                     train_dict,
                     num_classes=num_classes,
+                    include_bbox=True,
+                    include_masks=True,
                     frames_per_batch=frames_per_batch,
                     save_to_dir=temp_dir,
                     shuffle=True):
                 expected = list(images.shape)
                 expected[2] = frames_per_batch
-                self.assertEqual(x.shape[1:], tuple(expected)[1:])
+                expected = tuple(expected)
+                self.assertIsInstance(x, dict)
+                self.assertEqual('input' in x, True)
+                self.assertEqual('boxes_input' in x, True)
+                self.assertEqual(x['input'].shape[1:], expected[1:])
+
+                self.assertIsInstance(y, dict)
+                self.assertEqual('regression' in y, True)
+                self.assertEqual('classification' in y, True)
+                r = y['regression']
+                l = y['classification']
                 self.assertEqual(r.shape[:-1], l.shape[:-1])
                 self.assertEqual(r.shape[-1], 5)
                 self.assertEqual(l.shape[-1], num_classes + 1)
@@ -390,84 +433,14 @@ class TestRetinaMovieDataGenerator(test.TestCase):
         generator.fit(np.random.random((8, 3, 10, 10, 5)))
 
         with self.assertRaises(ValueError):
-            generator = image_generators.RetinaMovieDataGenerator(
+            generator = image_generators.MovieDataGenerator(
                 data_format='unknown')
 
-        generator = image_generators.RetinaMovieDataGenerator(
+        generator = image_generators.MovieDataGenerator(
             zoom_range=(2, 2))
         with self.assertRaises(ValueError):
-            generator = image_generators.RetinaMovieDataGenerator(
+            generator = image_generators.MovieDataGenerator(
                 zoom_range=(2, 2, 2))
-
-    def test_retinamovie_data_generator_fit(self):
-        generator = image_generators.RetinaMovieDataGenerator(
-            featurewise_center=True,
-            samplewise_center=True,
-            featurewise_std_normalization=True,
-            samplewise_std_normalization=True,
-            zca_whitening=True,
-            data_format='channels_last')
-        # Test grayscale
-        x = np.random.random((8, 5, 10, 10, 1))
-        generator.fit(x)
-        # Test RBG
-        x = np.random.random((8, 5, 10, 10, 3))
-        generator.fit(x)
-        generator = image_generators.RetinaMovieDataGenerator(
-            featurewise_center=True,
-            samplewise_center=True,
-            featurewise_std_normalization=True,
-            samplewise_std_normalization=True,
-            zca_whitening=False,
-            data_format='channels_first')
-        # Test grayscale
-        x = np.random.random((8, 1, 5, 4, 6))
-        generator.fit(x)
-        # Test RBG
-        x = np.random.random((8, 3, 5, 4, 6))
-        generator.fit(x)
-
-    def test_batch_standardize(self):
-        # RetinaMovieDataGenerator.standardize should work on batches
-        frames = 3
-        for test_images in _generate_test_images():
-            img_list = []
-            for im in test_images:
-                frame_list = []
-                for _ in range(frames):
-                    frame_list.append(img_to_array(im)[None, ...])
-                img_stack = np.vstack(frame_list)
-                img_list.append(img_stack)
-
-            images = np.vstack(img_list)
-            batches = images.shape[0] // frames
-            images = np.reshape(images, tuple([batches, frames] +
-                                              list(images.shape[1:])))
-            generator = image_generators.RetinaMovieDataGenerator(
-                featurewise_center=True,
-                samplewise_center=True,
-                featurewise_std_normalization=True,
-                samplewise_std_normalization=True,
-                zca_whitening=False,
-                rescale=2,
-                preprocessing_function=lambda x: x,
-                rotation_range=90.,
-                width_shift_range=0.1,
-                height_shift_range=0.1,
-                shear_range=0.5,
-                zoom_range=0.2,
-                channel_shift_range=0.,
-                brightness_range=(1, 5),
-                fill_mode='nearest',
-                cval=0.5,
-                horizontal_flip=True,
-                vertical_flip=True)
-            generator.fit(images, augment=True)
-
-            transformed = np.copy(images)
-            for i, im in enumerate(transformed):
-                transformed[i] = generator.random_transform(im, seed=1)
-            transformed = generator.standardize(transformed)
 
 
 class TestTransformMasks(test.TestCase):

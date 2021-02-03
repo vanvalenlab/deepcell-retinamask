@@ -31,8 +31,8 @@ from __future__ import division
 
 import copy
 
-import keras_applications as applications
 import tensorflow as tf
+from tensorflow.keras import applications
 from tensorflow.keras import backend as K
 from tensorflow.keras.backend import is_keras_tensor
 from tensorflow.keras.models import Model
@@ -67,12 +67,6 @@ def get_backbone(backbone, input_tensor=None, input_shape=None,
         ValueError: featurenet backbone with pre-trained imagenet
     """
     _backbone = str(backbone).lower()
-
-    featurenet_backbones = {
-        'featurenet': featurenet_backbone,
-        'featurenet3d': featurenet_3D_backbone,
-        'featurenet_3d': featurenet_3D_backbone
-    }
     vgg_backbones = {
         'vgg16': applications.vgg16.VGG16,
         'vgg19': applications.vgg19.VGG19,
@@ -140,18 +134,7 @@ def get_backbone(backbone, input_tensor=None, input_shape=None,
     else:
         kwargs['weights'] = None
 
-    if _backbone in featurenet_backbones:
-        if use_imagenet:
-            raise ValueError('A featurenet backbone that is pre-trained on '
-                             'imagenet does not exist')
-
-        model_cls = featurenet_backbones[_backbone]
-        model, output_dict = model_cls(input_tensor=img_input, **kwargs)
-
-        layer_outputs = [output_dict['C1'], output_dict['C2'], output_dict['C3'],
-                         output_dict['C4'], output_dict['C5']]
-
-    elif _backbone in vgg_backbones:
+    if _backbone in vgg_backbones:
         model_cls = vgg_backbones[_backbone]
         model = model_cls(input_tensor=img_input, **kwargs)
 

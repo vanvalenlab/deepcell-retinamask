@@ -32,10 +32,10 @@ from __future__ import print_function
 from absl.testing import parameterized
 
 from tensorflow.keras import backend as K
-from tensorflow.keras import keras_parameterized
+from tensorflow.python.keras import keras_parameterized
 from tensorflow.python.platform import test
 
-from deepcell_retinamask.model_zoo import RetinaNet
+from deepcell.model_zoo import RetinaNet
 
 
 class RetinaNetTest(keras_parameterized.TestCase):
@@ -46,6 +46,7 @@ class RetinaNetTest(keras_parameterized.TestCase):
             'testcase_name': 'retinanet_basic',
             'pooling': None,
             'panoptic': False,
+            'location': False,
             'frames': 1,
             'pyramid_levels': ['P3'],
             'data_format': 'channels_last',
@@ -54,6 +55,7 @@ class RetinaNetTest(keras_parameterized.TestCase):
             'testcase_name': 'retinanet_basic_td',
             'pooling': None,
             'panoptic': False,
+            'location': False,
             'frames': 5,
             'pyramid_levels': ['P3'],
             'data_format': 'channels_last',
@@ -62,6 +64,7 @@ class RetinaNetTest(keras_parameterized.TestCase):
             'testcase_name': 'retinanet_avgnorm',
             'pooling': 'avg',
             'panoptic': False,
+            'location': False,
             'frames': 1,
             'pyramid_levels': ['P3', 'P4', 'P5'],
             'data_format': 'channels_last',
@@ -70,6 +73,7 @@ class RetinaNetTest(keras_parameterized.TestCase):
             'testcase_name': 'retinanet_panoptic_maxnorm',
             'pooling': 'max',
             'panoptic': True,
+            'location': False,
             'frames': 1,
             'pyramid_levels': ['P5', 'P6', 'P7'],
             'data_format': 'channels_last',
@@ -78,14 +82,52 @@ class RetinaNetTest(keras_parameterized.TestCase):
             'testcase_name': 'retinanet_panoptic_maxnorm_td',
             'pooling': 'max',
             'panoptic': True,
+            'location': False,
             'frames': 5,
             'pyramid_levels': ['P5', 'P6', 'P7'],
+            'data_format': 'channels_last',
+        },
+        {
+            'testcase_name': 'retinanet_location',
+            'pooling': 'max',
+            'panoptic': True,
+            'location': True,
+            'frames': 1,
+            'pyramid_levels': ['P3', 'P7'],
+            'data_format': 'channels_last',
+        },
+        {
+            'testcase_name': 'retinanet_location_td',
+            'pooling': 'max',
+            'panoptic': True,
+            'location': True,
+            'frames': 5,
+            'pyramid_levels': ['P3', 'P7'],
+            'data_format': 'channels_last',
+        },
+        {
+            'testcase_name': 'retinanet_panoptic_location',
+            'pooling': 'max',
+            'panoptic': True,
+            'location': True,
+            'frames': 1,
+            'pyramid_levels': ['P3', 'P4', 'P5', 'P6', 'P7'],
+            'data_format': 'channels_last',
+        },
+        {
+            'testcase_name': 'retinanet_panoptic_location_td',
+            'pooling': 'max',
+            'panoptic': True,
+            'location': True,
+            'frames': 5,
+            'pyramid_levels': ['P3', 'P4', 'P5', 'P6', 'P7'],
             'data_format': 'channels_last',
         },
         {
             'testcase_name': 'retinanet_basic_cf',
             'pooling': None,
             'panoptic': False,
+            'location': False,
             'frames': 1,
             'pyramid_levels': ['P3'],
             'data_format': 'channels_first',
@@ -94,6 +136,7 @@ class RetinaNetTest(keras_parameterized.TestCase):
             'testcase_name': 'retinanet_basic_cf_td',
             'pooling': None,
             'panoptic': False,
+            'location': False,
             'frames': 5,
             'pyramid_levels': ['P3'],
             'data_format': 'channels_first',
@@ -102,6 +145,7 @@ class RetinaNetTest(keras_parameterized.TestCase):
             'testcase_name': 'retinanet_avgnorm_cf',
             'pooling': 'avg',
             'panoptic': False,
+            'location': False,
             'frames': 1,
             'pyramid_levels': ['P3', 'P4', 'P5'],
             'data_format': 'channels_first',
@@ -110,6 +154,7 @@ class RetinaNetTest(keras_parameterized.TestCase):
             'testcase_name': 'retinanet_panoptic_maxnorm_cf',
             'pooling': 'max',
             'panoptic': True,
+            'location': False,
             'frames': 1,
             'pyramid_levels': ['P5', 'P6', 'P7'],
             'data_format': 'channels_first',
@@ -118,18 +163,55 @@ class RetinaNetTest(keras_parameterized.TestCase):
             'testcase_name': 'retinanet_panoptic_maxnorm_cf_td',
             'pooling': 'max',
             'panoptic': True,
+            'location': False,
             'frames': 5,
             'pyramid_levels': ['P5', 'P6', 'P7'],
             'data_format': 'channels_first',
         },
+        {
+            'testcase_name': 'retinanet_location_cf',
+            'pooling': 'max',
+            'panoptic': True,
+            'location': True,
+            'frames': 1,
+            'pyramid_levels': ['P3', 'P7'],
+            'data_format': 'channels_first',
+        },
+        {
+            'testcase_name': 'retinanet_location_cf_td',
+            'pooling': 'max',
+            'panoptic': True,
+            'location': True,
+            'frames': 5,
+            'pyramid_levels': ['P3', 'P7'],
+            'data_format': 'channels_first',
+        },
+        {
+            'testcase_name': 'retinanet_panoptic_location_cf',
+            'pooling': 'max',
+            'panoptic': True,
+            'location': True,
+            'frames': 1,
+            'pyramid_levels': ['P3', 'P4', 'P5', 'P6', 'P7'],
+            'data_format': 'channels_first',
+        },
+        {
+            'testcase_name': 'retinanet_panoptic_location_cf_td',
+            'pooling': 'max',
+            'panoptic': True,
+            'location': True,
+            'frames': 5,
+            'pyramid_levels': ['P3', 'P4', 'P5', 'P6', 'P7'],
+            'data_format': 'channels_first',
+        }
     ])
-    def test_retinanet(self, pooling, panoptic, frames,
-                       pyramid_levels, data_format):
+    def test_retinanet(self, pooling, panoptic, location,
+                       frames, pyramid_levels, data_format):
         num_classes = 3
         norm_method = None
 
         # not all backbones work with channels_first
-        backbone = 'mobilenetv2'
+        backbone = 'featurenet'
 
         # TODO: TimeDistributed is incompatible with channels_first
         if frames > 1 and data_format == 'channels_first':
@@ -153,6 +235,7 @@ class RetinaNetTest(keras_parameterized.TestCase):
                 num_classes=num_classes,
                 input_shape=input_shape,
                 norm_method=norm_method,
+                location=location,
                 pooling=pooling,
                 panoptic=panoptic,
                 frames_per_batch=frames,

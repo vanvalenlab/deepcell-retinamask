@@ -35,33 +35,42 @@ from tensorflow.keras import backend as K
 from tensorflow.keras.layers import Input
 from tensorflow.keras.models import Model
 from tensorflow.keras import keras_parameterized
+from tensorflow.python.framework import test_util as tf_test_util
 from tensorflow.python.platform import test
 
 from deepcell_retinamask import backbones
 
 
-class TestBackboneUtils(keras_parameterized.TestCase):
+class TestBackbones(keras_parameterized.TestCase):
 
-    # @keras_parameterized.run_all_keras_modes
-    @parameterized.named_parameters([
-        ('resnet50',) * 2,
-        ('resnet101',) * 2,
-        ('resnet152',) * 2,
-        ('resnet50v2',) * 2,
-        ('resnet101v2',) * 2,
-        ('resnet152v2',) * 2,
-        ('resnext50',) * 2,
-        ('resnext101',) * 2,
-        ('vgg16',) * 2,
-        ('vgg19',) * 2,
-        ('densenet121',) * 2,
-        ('densenet169',) * 2,
-        ('densenet201',) * 2,
-        ('mobilenet',) * 2,
-        ('mobilenetv2',) * 2,
-        ('nasnet_large',) * 2,
-        ('nasnet_mobile',) * 2,
-    ])
+    @parameterized.named_parameters(
+        *tf_test_util.generate_combinations_with_testcase_name(
+            backbone=[
+                'resnet50',
+                'resnet101',
+                'resnet152',
+                'resnet50v2',
+                'resnet101v2',
+                'resnet152v2',
+                # 'resnext50',
+                # 'resnext101',
+                'vgg16',
+                'vgg19',
+                'densenet121',
+                'densenet169',
+                'densenet201',
+                'mobilenet',
+                'mobilenetv2',
+                'efficientnetb0',
+                'efficientnetb1',
+                'efficientnetb2',
+                'efficientnetb3',
+                'efficientnetb4',
+                'efficientnetb5',
+                'efficientnetb6',
+                'efficientnetb7',
+                'nasnet_large',
+                'nasnet_mobile']))
     def test_get_backbone(self, backbone):
         with self.cached_session():
             K.set_image_data_format('channels_last')

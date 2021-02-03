@@ -32,7 +32,7 @@ from __future__ import division
 import tensorflow as tf
 from tensorflow.keras import backend as K
 
-from deepcell_retinamask.utils.retinanet_anchor_utils import overlap
+from deepcell_retinamask.utils.anchor_utils import overlap
 
 
 def smooth_l1(y_true, y_pred, sigma=3.0, axis=None):
