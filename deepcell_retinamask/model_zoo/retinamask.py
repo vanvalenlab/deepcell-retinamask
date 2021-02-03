@@ -30,12 +30,12 @@ from __future__ import print_function
 from __future__ import division
 
 import tensorflow as tf
-from tensorflow.python.keras import backend as K
-from tensorflow.python.keras.layers import Input, Concatenate
-from tensorflow.python.keras.layers import TimeDistributed, Conv2D
-from tensorflow.python.keras.layers import MaxPool2D, Lambda, Dense
-from tensorflow.python.keras.models import Model
-from tensorflow.python.keras.initializers import normal
+from tensorflow.keras import backend as K
+from tensorflow.keras.layers import Input, Concatenate
+from tensorflow.keras.layers import TimeDistributed, Conv2D
+from tensorflow.keras.layers import MaxPool2D, Lambda, Dense
+from tensorflow.keras.models import Model
+from tensorflow.keras.initializers import normal
 
 from deepcell_retinamask.layers import ImageNormalization2D
 from deepcell_retinamask.utils.backbone_utils import get_backbone

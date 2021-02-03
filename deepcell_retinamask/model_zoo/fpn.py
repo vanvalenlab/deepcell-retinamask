@@ -31,13 +31,13 @@ from __future__ import division
 
 import re
 
-from tensorflow.python.keras import backend as K
-from tensorflow.python.keras.layers import Conv2D, Conv3D, DepthwiseConv2D
-from tensorflow.python.keras.layers import Softmax
-from tensorflow.python.keras.layers import Add
-from tensorflow.python.keras.layers import Activation
-from tensorflow.python.keras.layers import UpSampling2D, UpSampling3D
-from tensorflow.python.keras.layers import BatchNormalization
+from tensorflow.keras import backend as K
+from tensorflow.keras.layers import Conv2D, Conv3D, DepthwiseConv2D
+from tensorflow.keras.layers import Softmax
+from tensorflow.keras.layers import Add
+from tensorflow.keras.layers import Activation
+from tensorflow.keras.layers import UpSampling2D, UpSampling3D
+from tensorflow.keras.layers import BatchNormalization
 
 from deepcell_retinamask.layers import UpsampleLike
 from deepcell_retinamask.utils.retinanet_anchor_utils import get_sorted_keys

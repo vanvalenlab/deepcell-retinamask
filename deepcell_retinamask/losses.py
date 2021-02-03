@@ -30,7 +30,7 @@ from __future__ import print_function
 from __future__ import division
 
 import tensorflow as tf
-from tensorflow.python.keras import backend as K
+from tensorflow.keras import backend as K
 
 from deepcell_retinamask.utils.retinanet_anchor_utils import overlap
 

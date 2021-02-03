@@ -30,11 +30,10 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-import skimage as sk
 
-from tensorflow.python.keras import backend as K
-from tensorflow.python.keras.preprocessing.image import array_to_img
-from tensorflow.python.keras.preprocessing.image import img_to_array
+from tensorflow.keras import backend as K
+from tensorflow.keras.preprocessing.image import array_to_img
+from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.python.platform import test
 
 from deepcell_retinamask import image_generators
