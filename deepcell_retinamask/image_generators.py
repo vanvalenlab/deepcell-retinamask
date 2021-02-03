@@ -47,18 +47,11 @@ from tensorflow.keras.preprocessing.image import Iterator
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.python.platform import tf_logging as logging
 
+from deepcell.image_generators import MovieDataGenerator
+
 from deepcell_retinamask.utils.anchor_utils import anchor_targets_bbox
 from deepcell_retinamask.utils.anchor_utils import anchors_for_shape
 from deepcell_retinamask.utils.anchor_utils import guess_shapes
-
-try:
-    import scipy
-    # scipy.linalg cannot be accessed until explicitly imported
-    from scipy import linalg
-    # scipy.ndimage cannot be accessed until explicitly imported
-    from scipy import ndimage
-except ImportError:
-    scipy = None
 
 
 def _transform_masks(y, transform, data_format=None, **kwargs):
