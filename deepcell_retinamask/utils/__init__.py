@@ -29,10 +29,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import division
 
-from deepcell_retinamask.utils import backbone_utils
-from deepcell_retinamask.utils import retinanet_anchor_utils
-
-from deepcell_retinamask.utils.backbone_utils import get_backbone
+from deepcell_retinamask.utils import anchor_utils
 
 del absolute_import
 del division

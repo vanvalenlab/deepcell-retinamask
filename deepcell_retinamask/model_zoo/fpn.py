@@ -40,7 +40,7 @@ from tensorflow.keras.layers import UpSampling2D, UpSampling3D
 from tensorflow.keras.layers import BatchNormalization
 
 from deepcell_retinamask.layers import UpsampleLike
-from deepcell_retinamask.utils.retinanet_anchor_utils import get_sorted_keys
+from deepcell_retinamask.utils.anchor_utils import get_sorted_keys
 
 
 def create_pyramid_level(backbone_input,

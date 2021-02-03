@@ -29,12 +29,13 @@ from __future__ import print_function
 from __future__ import division
 
 import numpy as np
-import skimage as sk
-import tensorflow as tf
-from tensorflow.python.keras import backend as K
-from tensorflow.python.framework import tensor_shape
-# from cv2 import resize
+
+from skimage.measure import regionprops
 from skimage.transform import resize
+
+import tensorflow as tf
+from tensorflow.keras import backend as K
+from tensorflow.python.framework import tensor_shape
 
 from deepcell_toolbox import compute_overlap
 
@@ -87,7 +88,7 @@ def get_anchor_parameters(y):
     areas, aspects = [], []
     for batch in range(y.shape[0]):
         y_batch = y[batch, ..., 0]
-        for prop in sk.measure.regionprops(y_batch):
+        for prop in regionprops(y_batch):
             width = np.float(prop.bbox[2] - prop.bbox[0])
             height = np.float(prop.bbox[3] - prop.bbox[1])
 
