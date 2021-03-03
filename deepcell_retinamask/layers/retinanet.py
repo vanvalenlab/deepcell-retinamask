@@ -35,7 +35,7 @@ from tensorflow.keras.layers import Layer
 from tensorflow.keras import backend as K
 from tensorflow.python.keras.utils import conv_utils
 
-from deepcell.utils import retinanet_anchor_utils
+from deepcell_retinamask.utils import anchor_utils
 
 
 class Anchors(Layer):
@@ -72,16 +72,16 @@ class Anchors(Layer):
         self.scales = scales
 
         if self.ratios is None:
-            self.ratios = retinanet_anchor_utils.AnchorParameters.default.ratios
+            self.ratios = anchor_utils.AnchorParameters.default.ratios
         if isinstance(self.ratios, list):
             self.ratios = np.array(self.ratios)
         if self.scales is None:
-            self.scales = retinanet_anchor_utils.AnchorParameters.default.scales
+            self.scales = anchor_utils.AnchorParameters.default.scales
         if isinstance(self.scales, list):
             self.scales = np.array(self.scales)
 
         self.num_anchors = len(self.ratios) * len(self.scales)
-        self.anchors = K.variable(retinanet_anchor_utils.generate_anchors(
+        self.anchors = K.variable(anchor_utils.generate_anchors(
             base_size=size, ratios=ratios, scales=scales))
 
         super(Anchors, self).__init__(*args, **kwargs)
@@ -91,7 +91,7 @@ class Anchors(Layer):
 
         # generate proposals from bbox deltas and shifted anchors
         row_axis = 2 if self.data_format == "channels_first" else 1
-        anchors = retinanet_anchor_utils.shift(
+        anchors = anchor_utils.shift(
             features_shape[row_axis:row_axis + 2], self.stride, self.anchors)
 
         anchors = tf.tile(K.expand_dims(anchors, axis=0),
@@ -164,7 +164,7 @@ class RegressBoxes(Layer):
 
     def call(self, inputs, **kwargs):
         anchors, regression = inputs
-        return retinanet_anchor_utils.bbox_transform_inv(
+        return anchor_utils.bbox_transform_inv(
             anchors, regression, mean=self.mean, std=self.std)
 
     def compute_output_shape(self, input_shape):
