@@ -9,3 +9,9 @@
 `deepcell-retinamask` is a deep learning library for building RetinaNet and RetinaMask based object detection models with `tensorflow` and `deepcell-tf`.
 
 This project was heavily influenced by [keras-retinanet](https://github.com/fizyr/keras-retinanet) and [keras-maskrcnn](https://github.com/fizyr/keras-maskrcnn).
+
+For examples of how to train models with the `deepcell-retinamask` library, check out the following notebooks:
+
+- [Training a RetinaNet Model](https://github.com/vanvalenlab/deepcell-retinamask/blob/master/notebooks/RetinaNet.ipynb)
+- [Training a RetinaMask Model](https://github.com/vanvalenlab/deepcell-retinamask/blob/master/notebooks/RetinaMask.ipynb)
+- [Training a PanOpticFPN Model](https://github.com/vanvalenlab/deepcell-retinamask/blob/master/notebooks/PanOpticFPN.ipynb)
