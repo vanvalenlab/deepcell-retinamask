@@ -10,6 +10,16 @@
 
 This project was heavily influenced by [keras-retinanet](https://github.com/fizyr/keras-retinanet) and [keras-maskrcnn](https://github.com/fizyr/keras-maskrcnn).
 
+## Install
+
+`deepcell-retinamask` can be easily installed with pip:
+
+```bash
+$ pip install deepcell-retinamask
+```
+
+## Examples
+
 For examples of how to train models with the `deepcell-retinamask` library, check out the following notebooks:
 
 - [Training a RetinaNet Model](https://github.com/vanvalenlab/deepcell-retinamask/blob/master/notebooks/RetinaNet.ipynb)
