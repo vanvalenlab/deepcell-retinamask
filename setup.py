@@ -57,11 +57,11 @@ setup(
     long_description=readme,
     long_description_content_type='text/markdown',
     install_requires=[
-        'deepcell~=0.8.4',
-        'deepcell-toolbox~=0.8.6',
+        'deepcell~=0.9.0',
+        'deepcell-toolbox~=0.9.0',
         'numpy>=1.16.6,<1.20.0',
         'opencv-python-headless<5',
-        'tensorflow~=2.3.1',
+        'tensorflow~=2.4.1',
         'scikit-image>=0.14.5'
     ],
     extras_require={
@@ -72,14 +72,13 @@ setup(
         ],
     },
     packages=find_packages(),
-    python_requires='>=3.5, <3.9',
+    python_requires='>=3.6, <3.9',
     classifiers=[
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
