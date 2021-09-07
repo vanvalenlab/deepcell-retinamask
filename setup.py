@@ -57,11 +57,11 @@ setup(
     long_description=readme,
     long_description_content_type='text/markdown',
     install_requires=[
-        'deepcell~=0.9.0',
-        'deepcell-toolbox~=0.9.0',
+        'deepcell~=0.10.0',
+        'deepcell-toolbox~=0.10.2',
         'numpy>=1.16.6,<1.20.0',
         'opencv-python-headless<5',
-        'tensorflow~=2.4.1',
+        'tensorflow~=2.5.1',
         'scikit-image>=0.14.5'
     ],
     extras_require={
