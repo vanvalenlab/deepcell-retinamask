@@ -61,7 +61,7 @@ setup(
         'deepcell-toolbox~=0.9.0',
         'numpy>=1.16.6,<1.20.0',
         'opencv-python-headless<5',
-        'tensorflow~=2.4.1',
+        'tensorflow~=2.5.1',
         'scikit-image>=0.14.5'
     ],
     extras_require={
