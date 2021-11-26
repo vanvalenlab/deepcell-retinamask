@@ -24,7 +24,7 @@
 # limitations under the License.
 # ==============================================================================
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 __title__ = 'DeepCell-RetinaMask'
 __description__ = ('RetinaNet and RetinaMask models for object detection '
                    'using TensorFlow and DeepCell-tf.')
