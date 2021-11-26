@@ -36,7 +36,7 @@ jobs:
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install .[tests] coveralls
+        python -m pip install .[tests] coveralls
 
     - name: PyTest
       run: |
