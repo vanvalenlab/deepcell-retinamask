@@ -38,7 +38,7 @@ from tensorflow.python.platform import test
 from tensorflow.python.keras import keras_parameterized
 from tensorflow.python.keras import testing_utils
 
-from deepcell.callbacks import RedirectModel
+from deepcell_retinamask.callbacks import RedirectModel
 
 
 TRAIN_SAMPLES = 10
