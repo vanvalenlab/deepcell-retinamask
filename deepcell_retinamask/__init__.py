@@ -31,6 +31,7 @@ from __future__ import division
 
 from deepcell_retinamask._version import __version__
 
+from deepcell_retinamask import callbacks
 from deepcell_retinamask import image_generators
 from deepcell_retinamask import initializers
 from deepcell_retinamask import layers
